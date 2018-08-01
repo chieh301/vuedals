@@ -1,6 +1,6 @@
 {
-  "name": "vuedals",
-  "version": "1.7.0",
+  "name": "vuedals-submit",
+  "version": "1.0.0",
   "scripts": {
     "build": "webpack --config ./webpack.config.js && webpack --config webpack.config.min.js",
     "release": "bash ./release.sh"
@@ -9,7 +9,7 @@
   "main": "dist/vuedals.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/javisperez/vuedals.git"
+    "url": "git+https://github.com/chieh301/vuedals"
   },
   "keywords": [
     "vue",
@@ -21,15 +21,15 @@
     "plugin"
   ],
   "author": {
-    "name": "Javis Perez",
-    "email": "javisperez@gmail.com"
+    "name": "chieh",
+    "email": "chieh.lee@gmail.com"
   },
   "readme": "README.md",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/javisperez/vuedals/issues"
+    "url": "https://github.com/chieh301/vuedals/issues"
   },
-  "homepage": "https://github.com/javisperez/vuedals",
+  "homepage": "https://github.com/chieh301/vuedals",
   "dependencies": {
     "vue": "^2.1.10"
   },
