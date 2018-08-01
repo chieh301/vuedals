@@ -4,7 +4,7 @@ import Bus from './bus';
 export default {
     name: 'vuedals',
 
-    created() {
+    created () {
         // Create a new Vuedal instance
         Bus.$on('new', options => {
             const defaults = {
@@ -14,8 +14,9 @@ export default {
                 size: 'md',
                 escapable: false,
                 closeOnBackdrop: true,
-                onClose() {},
-                onDismiss() {}
+                onClose () { },
+                onDismiss () { },
+                onSubmit () { }
             };
 
             options = Object.assign(defaults, options);
@@ -68,7 +69,7 @@ export default {
         });
     },
 
-    data() {
+    data () {
         return {
             // Storage for all the vuedal's instances
             vuedals: []
@@ -77,7 +78,7 @@ export default {
 
     methods: {
         // Remove the given index from the vuedals array
-        splice(index = null) {
+        splice (index = null) {
             if (index === -1)
                 return;
 
@@ -98,7 +99,7 @@ export default {
             }
         },
 
-        doClose(data = null, index) {
+        doClose (data = null, index) {
             // If there's nothing to close, ignore it
             if (!this.vuedals.length)
                 return;
@@ -116,7 +117,7 @@ export default {
         },
 
         // Close the modal and pass any given data
-        close(data = null, index = null) {
+        close (data = null, index = null) {
             // Can't close if there's no modal open
             if (this.vuedals.length === 0)
                 return;
@@ -125,7 +126,7 @@ export default {
 
             // If the index is a function, pass the current open vuedal index
             if (index && typeof index === 'function') {
-              localIndex = index(data, this.vuedals);
+                localIndex = index(data, this.vuedals);
             }
 
             // If the index is either null or undefined
@@ -147,7 +148,7 @@ export default {
         },
 
         // Dismiss the active modal
-        dismiss(index = null) {
+        dismiss (index = null) {
             // Can't dismiss modal if there's no modal open
             if (this.vuedals.length === 0) {
                 return;
@@ -175,12 +176,47 @@ export default {
 
             this.doClose(null, localIndex);
         },
+        // Dismiss the active modal
+        submit (index = null) {
+            // Can't dismiss modal if there's no modal open
+            if (this.vuedals.length === 0) {
+                return;
+            }
+
+            let localIndex = index;
+
+            // If the index is a function, pass the current open vuedal index
+            if (index && typeof index === 'function')
+                localIndex = index(this.$last);
+
+            // If the index is either null or undefined
+            if (typeof localIndex !== 'number')
+                localIndex = this.$last;
+
+            // Check dismiss callback result for prevention
+            if (this.vuedals[localIndex].onSubmit() === false)
+                return;
+
+            if (this.$refs.components[localIndex].submit &&
+                typeof this.$refs.components[localIndex].submit === 'function') {
+                this.$refs.components[localIndex].submit()
+            } else {
+                console.log('Function submit() is not exist!!');
+            }
+
+            // Notify the app about this window being closed
+            // Bus.$emit('submitted', {
+            //     index: localIndex,
+            //     instance: this.vuedals[localIndex]
+            // });
+
+        },
 
         // Get css classes
-        getCssClasses(index) {
+        getCssClasses (index) {
             const vuedal = this.vuedals[index];
 
-            let classNames = vuedal.name +' '+ vuedal.size;
+            let classNames = vuedal.name + ' ' + vuedal.size;
 
             if (index < this.$last)
                 classNames += ' disabled';
@@ -188,7 +224,7 @@ export default {
             return classNames;
         },
 
-        handleEscapeKey(e) {
+        handleEscapeKey (e) {
             if (!this.vuedals.length)
                 return;
 
@@ -196,7 +232,7 @@ export default {
                 this.dismiss();
         },
 
-        handleBackdropClick() {
+        handleBackdropClick () {
             if (!this.vuedals.length) {
                 return;
             }
@@ -209,16 +245,16 @@ export default {
 
     computed: {
         // Get the current window
-        current() {
+        current () {
             return this.vuedals[this.$last];
         },
 
         // Get the last element of the Vuedals array (the most recent Vuedal instance)
-        $last() {
+        $last () {
             return this.vuedals.length - 1;
         },
 
-        body() {
+        body () {
             if (typeof document !== 'undefined') {
                 return document.querySelector('body');
             }
@@ -228,95 +264,174 @@ export default {
 </script>
 
 <template>
-<transition tag="div" name="vuedal">
-    <div class="vuedals" v-show="vuedals.length" tabindex="0" @keyup.esc.prevent="handleEscapeKey($event)" @click="handleBackdropClick()">
-        <div class="vuedal" v-for="(vuedal, index) in vuedals" :key="index" :class="getCssClasses(index)" @click.stop>
-            <header v-if="(vuedal.title || vuedal.dismissable) && !vuedal.header">
-                <span class="title">{{ vuedal.title }}</span>
-                <span @click="dismiss()" v-if="vuedal.dismissable" class="close">&times;</span>
-            </header>
-            <header v-if="vuedal.header">
-                <component :is="vuedal.header.component" v-bind="vuedal.header.props"></component>
-            </header>
-            <component :is="vuedal.component" v-bind="vuedal.props" ref="components"></component>
+  <transition tag="div"
+    name="vuedal">
+    <div class="vuedals"
+      v-show="vuedals.length"
+      tabindex="0"
+      @keyup.esc.prevent="handleEscapeKey($event)"
+      @click="handleBackdropClick()">
+      <div class="vuedal"
+        v-for="(vuedal, index) in vuedals"
+        :key="index"
+        :class="getCssClasses(index)"
+        @click.stop>
+        <header v-if="(vuedal.title || vuedal.dismissable) && !vuedal.header">
+          <span class="title">{{ vuedal.title }}</span>
+          <span @click="dismiss()"
+            v-if="vuedal.dismissable"
+            class="close">&times;</span>
+        </header>
+        <header v-if="vuedal.header">
+          <component :is="vuedal.header.component"
+            v-bind="vuedal.header.props"></component>
+        </header>
+        <div class="vuedal-body">
+          <component :is="vuedal.component"
+            v-bind="vuedal.props"
+            ref="components"></component>
         </div>
+        <footer>
+          <div class="actions">
+            <button @click="submit">送出</button>
+            <button @click="dismiss">取消</button>
+          </div>
+        </footer>
+      </div>
     </div>
-</transition>
+  </transition>
 </template>
 
 <style lang="sass">
 body.vuedal-open {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .vuedals {
-    background-color: rgba(0,0,0,.5);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1050;
-    overflow-x: hidden;
-    overflow-y: auto;
-    perspective: 500px;
-    transition: opacity .4s ease;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1050;
+  overflow-x: hidden;
+  overflow-y: auto;
+  perspective: 500px;
+  transition: opacity 0.4s ease;
 }
 
 .vuedal {
-    background: #FFF;
-    box-shadow: 3px 5px 20px #333;
+  background: #fff;
+  box-shadow: 3px 5px 20px #333;
+  //   padding: 20px;
+  margin: 30px 0;
+  transition: all 0.6s ease;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  will-change: transform;
+  width: 650px;
+
+  &.xl {
+    width: 1024px;
+  }
+
+  &.lg {
+    width: 850px;
+  }
+
+  &.sm {
+    width: 550px;
+  }
+
+  &.xs {
+    width: 350px;
+  }
+
+  @media (max-width: 768px) {
+    width: 90%;
+  }
+
+  &.disabled {
+    opacity: 0.2;
+
+    &::after {
+      background: transparent;
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+  }
+
+  header {
     padding: 20px;
-    margin: 30px 0;
-    transition: all 0.6s ease;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    will-change: transform;
-    width: 650px;
+    border-bottom: 1px solid #eee;
+    min-height: 32px;
+    margin-bottom: 20px;
 
-    &.xl { width: 1024px; }
+    .title {
+      font-size: 21px;
+      font-weight: 100;
+    }
 
-    &.lg { width: 850px; }
+    .close {
+      float: right;
+      font-size: 26px;
+      font-weight: 100;
+      line-height: 21px;
+      cursor: pointer;
+    }
+  }
 
-    &.sm { width: 550px; }
+  .vuedal-body {
+    padding: 20px;
+  }
 
-    &.xs { width: 350px; }
+  footer {
+    .actions {
+      display: flex;
+      flex: 0 1 auto;
+      width: 100%;
+      border-top: 1px solid #ebebeb;
+      button {
+        flex: 1 1 auto;
+        font-size: 12px !important;
+        background: transparent;
 
-    &.disabled {
-        opacity: 0.2;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        cursor: pointer;
 
-        &::after {
-            background: transparent;
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 100;
+        line-height: 40px;
+        height: 40px;
+        color: inherit;
+        font: inherit;
+        outline: none;
+        &:hover{
+            background:#ebebeb;
         }
+      }
+      button:not(:first-of-type) {
+        border-left: 1px solid #ebebeb;
+      }
     }
-
-    header {
-        border-bottom: 1px solid #EEE;
-        min-height: 32px;
-        margin-bottom: 20px;
-
-        .title { font-size: 21px; font-weight: 100;}
-
-        .close { float: right; font-size: 26px; font-weight: 100; line-height: 21px; cursor: pointer; }
-    }
+  }
 }
 
 .vuedal-enter,
 .vuedal-leave-active {
-    opacity: 0;
+  opacity: 0;
 }
 
 .vuedal-enter .vuedal,
 .vuedal-leave-active .vuedal {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-30px) scale(0.95);
+  opacity: 0;
+  transform: translateX(-50%) translateY(-30px) scale(0.95);
 }
 </style>

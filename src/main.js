@@ -2,12 +2,12 @@ import Bus from './bus';
 import Component from './component.vue';
 
 export default {
-    install(Vue) {
+    install (Vue) {
         // Global $vuedals property
         Vue.prototype.$vuedals = new Vue({
             name: '$vuedals',
 
-            created() {
+            created () {
                 Bus.$on('opened', data => {
                     this.$emit('vuedals:opened', data);
                 });
@@ -31,26 +31,28 @@ export default {
                 this.$on('dismiss', index => {
                     this.dismiss(index || null);
                 });
+
             },
 
             methods: {
-                open(options = null) {
+                open (options = null) {
                     Bus.$emit('new', options);
                 },
 
-                close(data = null) {
+                close (data = null) {
                     Bus.$emit('close', data);
                 },
 
-                dismiss(index = null) {
+                dismiss (index = null) {
                     Bus.$emit('dismiss', index);
                 }
+
             }
         });
 
         // Mixer for components
         Vue.mixin({
-            created() {
+            created () {
                 this.$on('vuedals:new', options => {
                     Bus.$emit('new', options);
                 });

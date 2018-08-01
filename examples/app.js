@@ -9,7 +9,7 @@ const Sample = {
     name: 'sample-component',
 
     methods: {
-        openNewModal() {
+        openNewModal () {
             this.$vuedals.open({
                 title: 'Cutie',
 
@@ -41,7 +41,10 @@ const ModalComponent1 = {
     props: ['example'],
 
     methods: {
-        openModal() {
+        submit () {
+            console.log('submitted!');
+        },
+        openModal () {
             this.$emit('vuedals:new', {
                 title: 'Modal in modal!  wow!',
                 component: ModalComponent2
@@ -61,18 +64,18 @@ const ModalComponent2 = {
     name: 'inside-modal-2',
 
     methods: {
-        openModal() {
+        openModal () {
             this.$emit('vuedals:new', {
                 dismissable: false,
                 escapable: true,
                 component: ModalComponent3,
-                onClose(data) {
+                onClose (data) {
                     console.log('[Vuedals] Data from component:', data);
                 }
             });
         },
 
-        closeModal() {
+        closeModal () {
             this.$emit('vuedals:close');
         }
     },
@@ -94,15 +97,15 @@ const ModalComponent3 = {
     name: 'inside-modal-3',
 
     methods: {
-        close() {
+        close () {
             Bus.$emit('close', {
-                sample: [1,2,3]
+                sample: [1, 2, 3]
             });
         },
 
-        closePrevious()  {
+        closePrevious () {
             Bus.$emit('close', {
-                $index(data, vuedals) {
+                $index (data, vuedals) {
                     return vuedals.length - 2;
                 }
             });
@@ -130,7 +133,7 @@ new Vue({
     },
 
     methods: {
-        openModal() {
+        openModal () {
             Bus.$emit('new', {
                 title: 'New modal window',
                 component: ModalComponent1,
