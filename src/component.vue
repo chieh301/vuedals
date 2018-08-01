@@ -389,7 +389,7 @@ body.vuedal-open {
   }
 
   .vuedal-body {
-    padding: 20px;
+    padding: 0 20px;
   }
 
   footer {
